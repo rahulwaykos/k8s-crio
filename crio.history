@@ -1,0 +1,100 @@
+    1  swapoff -a
+    2   cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+    3  [kubernetes]
+    4  name=Kubernetes
+    5  baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    6  enabled=1
+    7  gpgcheck=1
+    8  repo_gpgcheck=1
+    9  gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+   10  EOF
+   11  sudo modprobe overlay
+   12  sudo modprobe br_netfilter
+   13  cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+   14  net.bridge.bridge-nf-call-iptables  = 1
+   15  net.ipv4.ip_forward                 = 1
+   16  net.bridge.bridge-nf-call-ip6tables = 1
+   17  EOF
+   18  sudo sysctl --system
+   19  dnf install kubeadm -y 
+   20  dnf install kubelet
+   21  dnf install kubernetes-cni-0.8.7-0.x86_64
+   22  VERSION=1.17
+   23  export VERSION=1.19
+   24  sudo dnf -y install 'dnf-command(copr)'
+   25  sudo dnf -y copr enable rhcontainerbot/container-selinux
+   26  sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_8/devel:kubic:libcontainers:stable.repo
+   27  sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_8/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
+   28  dnf install crio
+   29  dnf install kubernetes-cni-0.8.7-0.x86_64
+   30  dnf install kubelet kubeadm
+   31  dnf install cri-tools-1.13.0-0.x86_64
+   32  sudo systemctl enable --now cri-o
+   33  systemctl status cri-o
+   34  systemctl status cri-o -l
+   35  mkdir -p /usr/local/libexec/crio/
+   36  ln -s /usr/lib/crio/bin/conmon /usr/local/libexec/crio/conmon
+   37  ln -s /usr/lib/crio/bin/pause /usr/local/libexec/crio/pause
+   38  systemctl status cri-o -l
+   39  systemctl start cri-o
+   40  journalctl -xe
+   41  ln -s /usr/lib/cri-o-runc/sbin/runc /usr/bin/runc
+   42  systemctl start cri-o
+   43  getenforce
+   44  vi /etc/selinux/config 
+   45  reboot
+   46  systemctl status crio
+   47  systemctl status crio | more
+   48  vi /etc/crio/crio.conf 
+   49  echo $PATH
+   50  find 
+   51  find / -name runc
+   52  echo $PATH
+   53  export PATH="/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin:/usr/bin/runc"
+   54  exec bash
+   55  systemctl start cri-o
+   56  systemctl status cri-o | more
+   57  swapoff -a
+   58  systemctl start cri-o
+   59  systemctl status cri-o | more
+   60  vi /etc/crio/crio.conf 
+   61  systemctl start cri-o
+   62  systemctl status cri-o | more
+   63  vi /etc/crio/crio.conf 
+   64  systemctl start cri-o
+   65  systemctl status cri-o | more
+   66  vi /etc/crio/crio.conf 
+   67  systemctl start cri-o
+   68  systemctl status cri-o | more
+   69  dnf remove cri-o
+   70  export VERSION=1.17
+   71  sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_8/devel:kubic:libcontainers:stable.repo
+   72  sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_8/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
+   73  dnf install cri-o
+   74  rm  /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:1.19.repo
+   75  dnf install cri-o
+   76  systemctl start cri-o
+   77  systemctl status crio
+   78  systemctl status cri-o
+   79  systemctl status cri-o | more
+   80  echo $PATH
+   81  ls /usr/bin/run
+   82  ls -l /usr/bin/runc
+   83  export PATH="/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin:/usr/lib/cri-o-runc/sbin"
+   84  echo $PATH
+   85  systemctl start crio
+   86  systemctl status cri-o | more
+   87  dnf install runc
+   88  systemctl start crio
+   89  systemctl status cri-o | more
+   90  dnf install conmon
+   91  systemctl start crio
+   92  systemctl status cri-o | more
+   93  ls /usr/libexec/crio/
+   94  find / -name conmon
+   95  cp /usr/bin/conmon /usr/libexec/crio/
+   96  systemctl start crio
+   97  systemctl status crio
+   98  systemctl enable crio
+   99  history
+  100  history > crio.history
